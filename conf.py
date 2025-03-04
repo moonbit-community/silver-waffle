@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Diff with MoonBit'
+project = 'AI Agent with MoonBit'
 copyright = '2025, International Digital Economy Academy'
 author = 'International Digital Economy Academy'
 
