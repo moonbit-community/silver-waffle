@@ -42,11 +42,14 @@ This part is divided as follows
 
 ### Create a Server
 
+In this section, we create a HTTP server using MoonBit with wasi-http 0.2.0, that prints something in the response body.
+
 #### Task
 
 - Clone <https://github.com/peter-jerry-ye/http-template.git>
 - Run the following script in the folder:
   ```bash
+  moon update
   moon build --target wasm --debug
   wasm-tools component embed --encoding utf16 wit target/wasm/debug/build/http-server.wasm -o target/server.core.wasm
   wasm-tools component new target/server.core.wasm -o target/server.wasm
@@ -62,6 +65,8 @@ We've cloned a template for developing HTTP application in MoonBit. Then we ran 
 
 For the commands:
 
+- `moon update`:  
+  this command update the index of the package registry, <https://mooncakes.io>.
 - `moon build --target wasm --debug`:  
   this command builds the project, generates the result in Wasm 1 backend (by default it would be Wasm GC, which is not supported yet by the Component Model proposal), in the debug mode (which you can remove when you are ready to publish).
 - `wasm-tools component embed --encoding utf16 wit target/wasm/debug/build/http-server.wasm -o target/server.core.wasm`:  
@@ -73,15 +78,64 @@ For the commands:
 
 For the code:
 
-The keys are inside the `src/stub.mt`, where we have a public function called `handle`. This is the required function by the standard. It takes an incoming request, and an `ResponseOutParam`, on which we should set the actual response.
+The most important part is inside the `src/stub.mbt`, where we have a public function called `handle`. This is the required function by the `wasi-http` standard. It takes an incoming request, and an `ResponseOutParam`, on which we should set the actual response.
 
-In the function body, `@promise.spawn` spawns a coroutine defined with an async function, which will call the function `top` and handle the error if anything occurs. Then the event loop is initialized. We can ignore this part.
+In the function body, `@promise.spawn` spawns a coroutine defined with an async function, which will call the function `top` and handle the error if anything occurs. Then the event loop is initialized.
 
-The `top` function defines the main logic. First, we create an outgoing response with empty headers with the helper function of `@http.headers`. We then set the status as 200, and creates a response body. The body returned is a `Result` because the designer of the API wants to make sure that it is retrieved only once. Since we are only retrieving once, we simply unwrap it. We then set our response to the `response_out`. Doing so will start the sending of the response immediately in the chunked manner. We then retrieve the output stream by `outgoing_body.write().unwrap()`, and use `@io.println` to write a `String` into it. We wait for its termination, and drop the output stream before finishing the outgoing body.
+The `top` function defines the main logic. First, we create an outgoing response with empty headers with the helper function of `@http.headers`. We then set the status as 200, and creates a response body. The body returned is a `Result` because the designer of the API wants to make sure that it is retrieved only once. We simply `unwrap` it. We then set our response to the `response_out`. Doing so will start the sending of the response immediately with the body transmitted in the chunked manner. We then retrieve the output stream by `outgoing_body.write().unwrap()`, and use `@io.println` to write a `String` into it. We wait for its termination, and drop the output stream before finishing the outgoing body.
 
 All the imported packages can be checked in `src/moon.pkg.json`. All the dependencies can be checked in `moon.mod.json`.
 
+#### Exercise
+
+Try to print something other than `Hello World`.
+
+```{seealso}
+The documentation of the packages can be found in:
+
+- wasi-imports: <https://mooncakes.io/docs/#/peter-jerry-ye/wasi-imports/>
+- async (for `@promise` and `@loop`): <https://mooncakes.io/docs/#/peter-jerry-ye/async/>
+- io (for `@channel`, `@io` and `@http`): <https://mooncakes.io/docs/#/peter-jerry-ye/io/>
+```
+
+```{note}
+The template provides build scripts with `just` (<https://just.systems/>) in `justfile`, and http testing with `hurl` (<https://hurl.dev/>) in `test.hurl`. Both are excellent modern tools.
+```
+
 ### Make the Server echos the body
+
+In this section, we try to analyze the incoming request and make an eching server.
+
+#### Task
+
+Rewrite the content of the `top` into:
+
+```moonbit
+```
+
+Rerun all the build command, and:
+
+```bash
+curl --data 'World' localhost:8080
+```
+
+#### Explanation
+
+The `@http.body` consumes all the content in the body and will be responsible for dropping the output stream.
+
+#### Exercise
+
+Try to build a server that returns `Hello xxx` where `xxx` is retrieved from the body.
+
+### Send Request to <https://example.com>
+
+In this section, we try to send a request and retrieve the content in the body.
+
+### Send Request to OpenRouter
+
+In this section, we try to send a request based on the API of OpenAI and handle the response by interacting with JSON in MoonBit.
+
+#### Task
 
 ## Create a GitHub App
 
