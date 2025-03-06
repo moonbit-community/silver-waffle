@@ -365,6 +365,107 @@ response as what we've done before.
 
 ### Bonus: Publish on Spin
 
+In this section, we publish the application that we've developped to Fermyon Cloud (<https://cloud.fermyon.com/>).
+
+#### Task
+
+First, add the WIT dependency:
+
+1. Install wit-deps (<https://github.com/bytecodealliance/wit-deps>). You can download the releases or run `cargo install wit-deps-cli` if you have the Rust toolchain.
+2. Add dependency to `wit/deps.toml`:
+    ```toml
+    spin = "https://github.com/fermyon/spin/archive/refs/tags/v3.1.1.tar.gz"
+    ```
+3. Run `wit-dpes update`
+4. Add dependency to `wit/imports.wit`:
+    ```wit
+    package moonbit-community:server;
+
+    world proxy {
+      include wasi:http/proxy@0.2.0;
+      // Get the OPENAI_API_KEY from spin variables
+      include fermyon:spin/platform@2.0.0;
+    }
+    ```
+
+Then we add MoonBit dependency:
+
+1. Add to `moon.mod.json`: `moon add peter-jerry-ye/spin-imports`
+2. Add to `src/moon.pkg.json`:
+    ```json
+    {
+      "link": {
+        // ...
+      },
+      "import": [
+        // ...
+        "peter-jerry-ye/spin-imports/interface/fermyon/spin/variables"
+      ]
+    }
+    ```
+
+And we update the code in `top` in `src/stub.mbt` with:
+
+```moonbit
+async fn top(
+  request : @types.IncomingRequest,
+  response_out : @types.ResponseOutparam
+) -> Unit! {
+  let token = @variables.get("openai_api_key").unwrap_or_error!()
+  // Get request
+  ...
+}
+```
+
+And finally, we define the Spin manifest in `spin.toml`:
+
+```toml
+spin_manifest_version = 2
+
+[application]
+name = "moonbit-server"
+version = "1.0.0"
+description = "A simple application."
+
+[variables]
+api_key = { required = true, secret = true }
+
+# The application's sole trigger.
+[[trigger.http]]
+route = "/"
+component = "server"
+
+[component.server]
+description = "A simple server."
+# The Wasm module to run for the component
+source = "target/server.wasm"
+# Environment variable
+allowed_outbound_hosts = ["https://openrouter.ai"]
+
+# How to build the Wasm module from source
+[component.server.build]
+command = """
+  moon build --target wasm
+  wasm-tools component embed --encoding utf16 wit target/wasm/release/build/http-server.wasm -o target/server.core.wasm
+  wasm-tools component new target/server.core.wasm -o target/server.wasm
+"""
+
+[component.server.variables]
+openai_api_key="{{ api_key }}"
+```
+
+Build the project with: `WIT_REQUIRE_F32_F64=0 spin build`
+
+Run the project with: `SPIN_VARIABLE_API_KEY="your_key" spin up`
+
+After you have registered on the Fermyon Cloud (<https://cloud.fermyon.com/?signup>), run `spin login` to login. Then you can publish the project with: `spin deploy --variable api_key=your_key`.
+
+#### Explanation
+
+We switch to use Spin's dynamic variable feature to get the secret key.
+
+To do so, we need to add the Spin's interface in our WIT definition. We update the dependency and the definition. Then we use `peter-jerry-ye/spin-imports`, a module that contains the generated code for using the Spin APIs, to get the api key from the variable. Finally, we define a manifest to declare what application it is, what variable it contains, what trigger it has, what component it has and how to build it, etc., and the variable for it. And we publish it at last.
+
 ## Create a GitHub App
 
 This part is divided as follows:
