@@ -9,9 +9,9 @@ Install the required toolchains:
   <https://github.com/bytecodealliance/wasm-tools?tab=readme-ov-file#installation>
   or jco <https://github.com/bytecodealliance/jco?tab=readme-ov-file#installation>
 - Wasmtime: <https://docs.wasmtime.dev/cli-install.html>
-- Spin: <https://developer.fermyon.com/spin/v3/install>
 - smee: <https://smee.io/> (rely on npm:
   <https://docs.npmjs.com/downloading-and-installing-node-js-and-npm>)
+- Spin (for bonus section): <https://developer.fermyon.com/spin/v3/install>
 
 ## Explanation
 
