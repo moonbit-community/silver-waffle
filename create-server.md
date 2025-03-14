@@ -14,13 +14,28 @@ that prints something in the response body.
 
 ### Task
 
-- Clone <https://github.com/peter-jerry-ye/http-template.git>, or create a new repository and clone your own.
+- Clone <https://github.com/peter-jerry-ye/http-template.git>, or create a new
+  repository and clone your own.
 - Run the following script in the folder:
   ```bash
+  # Build process
   moon update
   moon build --target wasm --debug
   wasm-tools component embed --encoding utf16 wit target/wasm/debug/build/http-server.wasm -o target/server.core.wasm
   wasm-tools component new target/server.core.wasm -o target/server.wasm
+  # In the first terminal
+  wasmtime serve target/server.wasm
+  # In the second terminal
+  curl localhost:8080
+  ```
+
+- If you are using `jco` instead of `wasm-tools`:
+  ```bash
+  # Build process
+  moon update
+  moon build --target wasm --debug
+  jco embed --string-encoding utf16 --wit wit target/wasm/debug/build/http-server.wasm -o target/server.core.wasm
+  jco new target/server.core.wasm -o target/server.wasm
   # In the first terminal
   wasmtime serve target/server.wasm
   # In the second terminal
@@ -41,11 +56,14 @@ For the commands:
   default it would be Wasm GC, which is not supported yet by the Component Model
   proposal), in the debug mode (which you can remove when you are ready to
   publish).
-- `wasm-tools component embed --encoding utf16 wit target/wasm/debug/build/http-server.wasm -o target/server.core.wasm`:\
+- `wasm-tools component embed --encoding utf16 wit target/wasm/debug/build/http-server.wasm -o target/server.core.wasm`
+  or
+  `jco embed --string-encoding utf16 --wit wit target/wasm/debug/build/http-server.wasm -o target/server.core.wasm`:\
   This embeds the interface information, under the folder `wit`, into the Wasm
-  that we've just produced. We also specify that the encoding of the language is
-  UTF16.
-- `wasm-tools component new target/server.core.wasm -o target/server.wasm`:\
+  that we've just produced. There's only one **world** in the folder, We also
+  specify that the encoding of the language is UTF16.
+- `wasm-tools component new target/server.core.wasm -o target/server.wasm` or
+  `jco new target/server.core.wasm -o target/server.wasm`:\
   This transforms the standard Wasm with the meta information into the so called
   componentized Wasm, i.e. the Wasm following the Component Model's standard.
 - `wasmtime serve target/server.wasm`:\
@@ -318,46 +336,63 @@ response as what we've done before.
   full content being ready. You may find `@io.read_line` and `@promise.spawn`
   helpful.
 
+````{tip}
+You may use dotenvx (<https://dotenvx.com/>) for managing the environment variables 
+and autoloading during execution, and the values will be encrypted by default. For example:
+
+```bash
+# Setup
+touch .env
+dotenvx set OPENAI_API_KEY your_key
+dotenvx ext gitignore --pattern .env.keys
+# Usage
+dotenvx run -- wasmtime serve -S cli=y --env OPENAI_API_KEY target/server.wasm
+```
+````
+
 ## Bonus: Publish on Spin
 
-In this section, we publish the application that we've developped to Fermyon Cloud (<https://cloud.fermyon.com/>).
+In this section, we publish the application that we've developped to Fermyon
+Cloud (<https://cloud.fermyon.com/>).
 
 ### Task
 
 First, add the WIT dependency:
 
-1. Install wit-deps (<https://github.com/bytecodealliance/wit-deps>). You can download the releases or run `cargo install wit-deps-cli` if you have the Rust toolchain.
+1. Install wit-deps (<https://github.com/bytecodealliance/wit-deps>). You can
+   download the releases or run `cargo install wit-deps-cli` if you have the
+   Rust toolchain.
 2. Add dependency to `wit/deps.toml`:
-    ```toml
-    spin = "https://github.com/fermyon/spin/archive/refs/tags/v3.1.1.tar.gz"
-    ```
+   ```toml
+   spin = "https://github.com/fermyon/spin/archive/refs/tags/v3.1.1.tar.gz"
+   ```
 3. Run `wit-dpes update`
 4. Add dependency to `wit/imports.wit`:
-    ```wit
-    package moonbit-community:server;
+   ```wit
+   package moonbit-community:server;
 
-    world proxy {
-      include wasi:http/proxy@0.2.0;
-      // Get the OPENAI_API_KEY from spin variables
-      include fermyon:spin/platform@2.0.0;
-    }
-    ```
+   world proxy {
+     include wasi:http/proxy@0.2.0;
+     // Get the OPENAI_API_KEY from spin variables
+     include fermyon:spin/platform@2.0.0;
+   }
+   ```
 
 Then we add MoonBit dependency:
 
 1. Add to `moon.mod.json`: `moon add peter-jerry-ye/spin-imports`
 2. Add to `src/moon.pkg.json`:
-    ```json
-    {
-      "link": {
-        // ...
-      },
-      "import": [
-        // ...
-        "peter-jerry-ye/spin-imports/interface/fermyon/spin/variables"
-      ]
-    }
-    ```
+   ```json
+   {
+     "link": {
+       // ...
+     },
+     "import": [
+       // ...
+       "peter-jerry-ye/spin-imports/interface/fermyon/spin/variables"
+     ]
+   }
+   ```
 
 And we update the code in `top` in `src/stub.mbt` with:
 
@@ -413,14 +448,17 @@ Build the project with: `WIT_REQUIRE_F32_F64=0 spin build`
 
 Run the project with: `SPIN_VARIABLE_API_KEY="your_key" spin up`
 
-After you have registered on the Fermyon Cloud (<https://cloud.fermyon.com/?signup>), run `spin login` to login. Then you can publish the project with: `spin deploy --variable api_key=your_key`.
+After you have registered on the Fermyon Cloud
+(<https://cloud.fermyon.com/?signup>), run `spin login` to login. Then you can
+publish the project with: `spin deploy --variable api_key=your_key`.
 
 ### Explanation
 
 We switch to use Spin's dynamic variable feature to get the secret key.
 
-To do so, we need to add the Spin's interface in our WIT definition. We update the dependency and the definition. Then we use `peter-jerry-ye/spin-imports`, a module that contains the generated code for using the Spin APIs, to get the api key from the variable. Finally, we define a manifest to declare what application it is, what variable it contains, what trigger it has, what component it has and how to build it, etc., and the variable for it. And we publish it at last.
-
-```{tip}
-dotenvx (<https://dotenvx.com/>) is a handy tool for managing environment variables.
-```
+To do so, we need to add the Spin's interface in our WIT definition. We update
+the dependency and the definition. Then we use `peter-jerry-ye/spin-imports`, a
+module that contains the generated code for using the Spin APIs, to get the api
+key from the variable. Finally, we define a manifest to declare what application
+it is, what variable it contains, what trigger it has, what component it has and
+how to build it, etc., and the variable for it. And we publish it at last.

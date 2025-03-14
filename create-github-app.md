@@ -217,21 +217,6 @@ Serve your application:
 USER_NAME=your-user-name CLIENT_ID=your-client-id PRIVATE_KEY=your-private-key wasmtime serve -S cli=y --env USER_NAME --env CLIENT_ID --env PRIVATE_KEY target/server.wasm
 ```
 
-``````{hint}
-You may use tools such as dotenvx (<https://dotenvx.com/>) for managing the environment variables and autoloading during execution. For example:
-
-```bash
-# Setup
-touch .env
-dotenvx set USER_NAME your-user-name
-dotenvx set CLIENT_ID your-client-id
-dotenvx set PRIVATE_KEY '$(cat path/to/your/private-key.pem)'
-dotenvx ext gitignore --pattern .env.keys
-# Usage
-dotenvx run -- wasmtime serve -S cli=y --env USER_NAME --env CLIENT_ID --env PRIVATE_KEY target/server.wasm
-```
-``````
-
 ### Explanation
 
 We retrieved the installation from the request header, the client id and private key from the environment, and the time using `wasi-clock`.

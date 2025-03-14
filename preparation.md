@@ -5,8 +5,9 @@
 Install the required toolchains:
 
 - MoonBit: <https://www.moonbitlang.com/download>
-- Wasm-tools:
+- Wasm-tools
   <https://github.com/bytecodealliance/wasm-tools?tab=readme-ov-file#installation>
+  or jco <https://github.com/bytecodealliance/jco?tab=readme-ov-file#installation>
 - Wasmtime: <https://docs.wasmtime.dev/cli-install.html>
 - Spin: <https://developer.fermyon.com/spin/v3/install>
 - smee: <https://smee.io/> (rely on npm:
