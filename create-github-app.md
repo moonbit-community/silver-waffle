@@ -240,4 +240,4 @@ For full information on access token, checkout GitHub documentation <https://doc
 
 ### Exercise
 
-Try to implement the third party by yourself.
+Try to implement the third part by yourself.
