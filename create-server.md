@@ -128,12 +128,11 @@ async fn top(
   let body = request.consume().unwrap()
   request.drop()
   let content = @http.text(body).0.await!!()
-  let response = @types.OutgoingResponse::outgoing_response(@http.headers({}))
-  response.set_status_code(200).unwrap()
+  let response = @http.response!(200)
   let outgoing_body = response.body().unwrap()
   response_out.set(Ok(response))
   let outgoing_stream = outgoing_body.write().unwrap()
-  @io.println("\{content}", stream=outgoing_stream).await!!()
+  @io.println!!(content, stream=outgoing_stream)
   outgoing_stream.drop()
   outgoing_body.finish(None).unwrap_or_error!()
 }
@@ -175,20 +174,20 @@ async fn top(
 ) -> Unit! {
   // Send request
   let request = @http.request!("example.com", path="/", scheme=Https)
-  let response = @http.fetch(request).await!!()
+  let response = @http.fetch!!(request)
   let body = response.consume().unwrap()
   let content = @http.text(body).0.await!!()
   response.drop()
   // Send response
-  let response = @types.OutgoingResponse::outgoing_response(@http.headers({}))
-  response.set_status_code(200).unwrap()
+  let response = @http.response!(200)
   let outgoing_body = response.body().unwrap()
   response_out.set(Ok(response))
   let outgoing_stream = outgoing_body.write().unwrap()
-  @io.println("\{content}", stream=outgoing_stream).await!!()
+  @io.println!!("\{content}", stream=outgoing_stream)
   outgoing_stream.drop()
   outgoing_body.finish(None).unwrap_or_error!()
 }
+
 ```
 
 Rerun all the build commands, and:
@@ -248,18 +247,16 @@ async fn top(
     scheme=Https,
     method_=Post,
     headers=@http.headers({
-      "Content-Type": [b"application/json".to_fixedarray()],
-      "Authorization": [
-        @encoding.encode(UTF8, "Bearer \{token}").to_fixedarray(),
-      ],
+      "Content-Type": [b"application/json"],
+      "Authorization": [@encoding.encode(UTF8, "Bearer \{token}")],
     }),
   )
   let body = request.body().unwrap()
   let output_stream = body.write().unwrap()
-  @io.println(payload.stringify(), stream=output_stream).await!!()
+  @io.println!!(payload.stringify(), stream=output_stream)
   output_stream.drop()
   body.finish(None).unwrap_or_error!()
-  let response = @http.fetch(request).await!!()
+  let response = @http.fetch!!(request)
   let body = response.consume().unwrap()
   let content = @http.json(body).0.await!!()
   response.drop()

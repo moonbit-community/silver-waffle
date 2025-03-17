@@ -63,12 +63,12 @@ On one side:
      headers.drop()
      request.drop()
      let json = @http.json(body).0.await!!()
-     @io.println("Request Headers:").await!!()
+     @io.println!!("Request Headers:")
      for entry in entries {
-       @io.print("\n\{entry.0}: ").await!!()
-       @io.write(entry.1, @io.stdout).await!!()
+       @io.print!!("\n\{entry.0}: ")
+       @io.write!!(entry.1, @io.stdout)
      }
-     @io.println("\nContent: \{json.stringify()}").await!!()
+     @io.println!!("\nContent: \{json.stringify()}")
      let response = @types.OutgoingResponse::outgoing_response(@http.headers({}))
      response.set_status_code(200).unwrap()
      response_out.set(Ok(response))
@@ -134,13 +134,13 @@ async fn create_installation_access_token(
     method_=Post,
     path="/app/installations/\{installation}/access_tokens",
     headers=@http.headers({
-      "Accept": [b"application/vnd.github.v3+json".to_fixedarray()],
-      "X-GitHub-Api-Version": [b"2022-11-28".to_fixedarray()],
-      "User-Agent": [@encoding.encode(UTF8, username).to_fixedarray()],
-      "Authorization": [@encoding.encode(UTF8, "Bearer \{jwt}").to_fixedarray()],
+      "Accept": [b"application/vnd.github.v3+json"],
+      "X-GitHub-Api-Version": [b"2022-11-28"],
+      "User-Agent": [@encoding.encode(UTF8, username)],
+      "Authorization": [@encoding.encode(UTF8, "Bearer \{jwt}")],
     }),
   )
-  let response = @http.fetch(request).await!!()
+  let response = @http.fetch!!(request)
   if response.status() != 201 {
     let body = response.consume().unwrap()
     let content = @http.text(body).0.await!!()
@@ -171,8 +171,8 @@ async fn top(
     now,
     username,
   )
-  @io.println("Got token \{token}").await!!()
-  let response = @types.OutgoingResponse::outgoing_response(@http.headers({}))
+  @io.println!!("Got token \{token}")
+  let response = @http.response!(200)
   ...
 }
 ```
