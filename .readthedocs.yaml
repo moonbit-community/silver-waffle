@@ -1,6 +1,6 @@
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-# Reference: https://github.com/astral-sh/uv/issues/10074#issuecomment-2691610818
+# Reference: https://docs.readthedocs.com/platform/latest/build-customization.html#install-dependencies-with-uv
 
 # Required
 version: 2
@@ -15,7 +15,7 @@ build:
       - asdf plugin add uv
       - asdf install uv latest
       - asdf global uv latest
-      - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync
+      - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --all-extras
     install:
       - "true"
 
@@ -23,5 +23,5 @@ build:
 sphinx:
    configuration: conf.py
 
-formats: all
-        
+formats:
+  - pdf
