@@ -187,7 +187,6 @@ async fn top(
   outgoing_stream.drop()
   outgoing_body.finish(None).unwrap_or_error!()
 }
-
 ```
 
 Rerun all the build commands, and:
@@ -215,6 +214,12 @@ In this section, we try to send a request based on the API of OpenAI and handle
 the response by interacting with JSON in MoonBit. The user message will be given
 in the request body.
 
+```{note}
+In this exercise, we are using OpenRouter and the DeepSeek chat as an example.
+
+If you would like to use another AI provider, please change the endpoint, the path and the model name.
+```
+
 ### Task
 
 Rewrite the beginning of the `top` in `src/stub.mbt` into:
@@ -234,6 +239,7 @@ async fn top(
   request.drop()
   // Prepare payload
   let payload : Json = {
+    // Using DeepSeek Chat
     "model": "deepseek/deepseek-chat",
     "messages": [
       { "role": "system", "content": "You are a helpful assistant." },
@@ -242,6 +248,7 @@ async fn top(
   }
   // Send request
   let request = @http.request!(
+    // Using OpenRouter
     "openrouter.ai",
     path="/api/v1/chat/completions",
     scheme=Https,
