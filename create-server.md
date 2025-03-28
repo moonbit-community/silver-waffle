@@ -247,7 +247,7 @@ async fn top(
     scheme=Https,
     method_=Post,
     headers=@http.headers({
-      "Content-Type": [b"application/json"],
+      "Content-Type": ["application/json"],
       "Authorization": [@encoding.encode(UTF8, "Bearer \{token}")],
     }),
   )

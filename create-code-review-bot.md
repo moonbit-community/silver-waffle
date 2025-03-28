@@ -28,7 +28,7 @@ async fn get_pr_diff(
     "api.github.com",
     path="/repos/\{owner}/\{repo}/pulls/\{pull_number}",
     headers=@http.headers({
-      "Accept": [b"application/vnd.github.v3.diff"],
+      "Accept": ["application/vnd.github.v3.diff"],
       "Authorization": [@encoding.encode(UTF8, "token \{token}")],
       "User-Agent": [@encoding.encode(UTF8, username)],
     }),
@@ -162,7 +162,7 @@ async fn get_review(message : String, changes : String) -> String! {
     scheme=Https,
     method_=Post,
     headers=@http.headers({
-      "Content-Type": [b"application/json"],
+      "Content-Type": ["application/json"],
       "Authorization": [@encoding.encode(UTF8, "Bearer \{token}")],
     }),
   )
@@ -235,7 +235,7 @@ async fn get_comment_list(
     "api.github.com",
     path="/repos/\{owner}/\{repo}/issues/\{issue_number}/comments",
     headers=@http.headers({
-      "Accept": [b"application/vnd.github.v3+json"],
+      "Accept": ["application/vnd.github.v3+json"],
       "Authorization": [@encoding.encode(UTF8, "token \{token}")],
       "User-Agent": [@encoding.encode(UTF8, username)],
     }),
@@ -282,9 +282,9 @@ async fn create_comment(
     path="/repos/\{owner}/\{repo}/issues/\{issue_number}/comments",
     method_=Post,
     headers=@http.headers({
-      "Accept": [b"application/vnd.github.v3+json"],
+      "Accept": ["application/vnd.github.v3+json"],
       "Authorization": [@encoding.encode(UTF8, "token \{token}")],
-      "X-Github-Api-Version": [b"2022-11-28"],
+      "X-Github-Api-Version": ["2022-11-28"],
       "User-Agent": [@encoding.encode(UTF8, username)],
     }),
   ).unwrap()
@@ -317,9 +317,9 @@ async fn update_comment(
     path="/repos/\{owner}/\{repo}/issues/comments/\{comment_id}",
     method_=Patch,
     headers=@http.headers({
-      "Accept": [b"application/vnd.github.v3+json"],
+      "Accept": ["application/vnd.github.v3+json"],
       "Authorization": [@encoding.encode(UTF8, "token \{token}")],
-      "X-Github-Api-Version": [b"2022-11-28"],
+      "X-Github-Api-Version": ["2022-11-28"],
       "User-Agent": [@encoding.encode(UTF8, username)],
     }),
   ).unwrap()
@@ -440,7 +440,7 @@ async fn get_review(message : String, changes : String) -> String! {
     scheme=Https,
     method_=Post,
     headers=@http.headers({
-      "Content-Type": [b"application/json"],
+      "Content-Type": ["application/json"],
       "Authorization": [@encoding.encode(UTF8, "Bearer \{token}")],
     }),
   )

@@ -134,8 +134,8 @@ async fn create_installation_access_token(
     method_=Post,
     path="/app/installations/\{installation}/access_tokens",
     headers=@http.headers({
-      "Accept": [b"application/vnd.github.v3+json"],
-      "X-GitHub-Api-Version": [b"2022-11-28"],
+      "Accept": ["application/vnd.github.v3+json"],
+      "X-GitHub-Api-Version": ["2022-11-28"],
       "User-Agent": [@encoding.encode(UTF8, username)],
       "Authorization": [@encoding.encode(UTF8, "Bearer \{jwt}")],
     }),
