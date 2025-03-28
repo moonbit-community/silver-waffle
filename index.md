@@ -10,6 +10,8 @@ This workshop contains the following parts:
 - Create a GitHub App
 - Create a Code Review Bot utilizing the previous knowledge
 
+Source Code : <https://github.com/moonbit-community/potential-chainsaw>
+
 ```{toctree}
 :hidden:
 preparation
