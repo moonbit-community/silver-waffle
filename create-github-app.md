@@ -62,13 +62,13 @@ On one side:
      let body = request.consume().unwrap()
      headers.drop()
      request.drop()
-     let json = @http.json(body).0.await!!()
-     @io.println!!("Request Headers:")
+     let json = @http.json(body).0.await!()
+     @io.println!("Request Headers:")
      for entry in entries {
-       @io.print!!("\n\{entry.0}: ")
-       @io.write!!(entry.1, @io.stdout)
+       @io.print!("\n\{entry.0}: ")
+       @io.write!(entry.1, @io.stdout)
      }
-     @io.println!!("\nContent: \{json.stringify()}")
+     @io.println!("\nContent: \{json.stringify()}")
      let response = @types.OutgoingResponse::outgoing_response(@http.headers({}))
      response.set_status_code(200).unwrap()
      response_out.set(Ok(response))
@@ -140,14 +140,14 @@ async fn create_installation_access_token(
       "Authorization": [@encoding.encode(UTF8, "Bearer \{jwt}")],
     }),
   )
-  let response = @http.fetch!!(request)
+  let response = @http.fetch!(request)
   if response.status() != 201 {
     let body = response.consume().unwrap()
-    let content = @http.text(body).0.await!!()
+    let content = @http.text(body).0.await!()
     fail!("Failed to create installation access token. Reason: \{content}")
   }
   let body = response.consume().unwrap()
-  let json = @http.json(body).0.await!!()
+  let json = @http.json(body).0.await!()
   guard json is { "token": String(token), .. }
   token
 }
@@ -157,21 +157,21 @@ async fn top(
   response_out : @types.ResponseOutparam
 ) -> Unit! {
   ...
-  let json = @http.json(body).0.await!!()
+  let json = @http.json(body).0.await!()
   guard json is { "installation": { "id": Number(installation), .. }, .. }
   let environment = Map::from_array(@environment.get_environment())
   guard environment["CLIENT_ID"] is Some(client_id)
   guard environment["PRIVATE_KEY"] is Some(private_key)
   guard environment["USER_NAME"] is Some(username)
   let now = @wallClock.now().seconds
-  let token = create_installation_access_token!!(
+  let token = create_installation_access_token!(
     installation.to_uint(),
     private_key,
     client_id,
     now,
     username,
   )
-  @io.println!!("Got token \{token}")
+  @io.println!("Got token \{token}")
   let response = @http.response!(200)
   ...
 }

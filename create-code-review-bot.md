@@ -33,15 +33,15 @@ async fn get_pr_diff(
       "User-Agent": [@encoding.encode(UTF8, username)],
     }),
   )
-  let response = @http.fetch!!(request)
+  let response = @http.fetch!(request)
   if response.status() != 200 {
     let body = response.consume().unwrap()
-    let content = @http.text(body).0.await!!()
+    let content = @http.text(body).0.await!()
     response.drop()
     raise fail!("Error fetching diff \{response.status()}: \{content}")
   }
   let body = response.consume().unwrap()
-  let content = @http.text(body).0.await!!()
+  let content = @http.text(body).0.await!()
   response.drop()
   content
 }
@@ -69,7 +69,7 @@ async fn top(
   // Parse the body
   let body = request.consume().unwrap()
   request.drop()
-  let json = @http.json(body).0.await!!()
+  let json = @http.json(body).0.await!()
   guard json
     is {
       "action": "opened"
@@ -99,7 +99,7 @@ async fn top(
   guard environment["PRIVATE_KEY"] is Some(private_key)
   guard environment["USER_NAME"] is Some(username)
   let now = @wallClock.now().seconds
-  let token = create_installation_access_token!!(
+  let token = create_installation_access_token!(
     installation.to_uint(),
     private_key,
     client_id,
@@ -107,14 +107,14 @@ async fn top(
     username,
   )
   // Get the Pull Request's changes
-  let pull_request_diff = get_pr_diff!!(
+  let pull_request_diff = get_pr_diff!(
     owner,
     repository,
     pull_request.to_int64(),
     token,
     username,
   )
-  @io.println!!(
+  @io.println!(
     #|=== Pull Request Message ==
     $|\{pull_request_message}
     #|=== Pull Request Changes (in diff format) ==
@@ -168,12 +168,12 @@ async fn get_review(message : String, changes : String) -> String! {
   )
   let body = request.body().unwrap()
   let output_stream = body.write().unwrap()
-  @io.println!!(payload.stringify(), stream=output_stream)
+  @io.println!(payload.stringify(), stream=output_stream)
   output_stream.drop()
   body.finish(None).unwrap_or_error!()
-  let response = @http.fetch!!(request)
+  let response = @http.fetch!(request)
   let body = response.consume().unwrap()
-  let content = @http.json(body).0.await!!()
+  let content = @http.json(body).0.await!()
   response.drop()
   guard content
     is {
@@ -195,15 +195,15 @@ async fn top(
 ) -> Unit! {
   ...
   // Get the Pull Request's changes
-  let pull_request_diff = get_pr_diff!!(
+  let pull_request_diff = get_pr_diff!(
     owner,
     repository,
     pull_request.to_int64(),
     token,
     username,
   )
-  let review = get_review!!(pull_request_message, pull_request_diff)
-  @io.println!!(
+  let review = get_review!(pull_request_message, pull_request_diff)
+  @io.println!(
     #|=== Review ===
     $|\{review}
     ,
@@ -240,15 +240,15 @@ async fn get_comment_list(
       "User-Agent": [@encoding.encode(UTF8, username)],
     }),
   ).unwrap()
-  let response = @http.fetch!!(request)
+  let response = @http.fetch!(request)
   if response.status() != 200 {
     let body = response.consume().unwrap()
-    let content = @http.text(body).0.await!!()
+    let content = @http.text(body).0.await!()
     response.drop()
     fail!("Failed to list issue comments. Reason: \{content}")
   }
   let body = response.consume().unwrap()
-  let json = @http.json(body).0.await!!()
+  let json = @http.json(body).0.await!()
   response.drop()
   guard json is Array(comments) else {
     fail!("Failed to list issue comments. Unexpected response: \{json}")
@@ -290,13 +290,13 @@ async fn create_comment(
   ).unwrap()
   let body = request.body().unwrap()
   let output = body.write().unwrap()
-  @io.println!!(({ "body": String(comment) } : Json).stringify(), stream=output)
+  @io.println!(({ "body": String(comment) } : Json).stringify(), stream=output)
   output.drop()
   body.finish(None).unwrap()
-  let response = @http.fetch!!(request)
+  let response = @http.fetch!(request)
   if response.status() != 201 {
     let body = response.consume().unwrap()
-    let content = @http.text(body).0.await!!()
+    let content = @http.text(body).0.await!()
     response.drop()
     fail!("Failed to create comment. Reason: \{content}")
   }
@@ -325,13 +325,13 @@ async fn update_comment(
   ).unwrap()
   let body = request.body().unwrap()
   let output = body.write().unwrap()
-  @io.println!!(({ "body": String(comment) } : Json).stringify(), stream=output)
+  @io.println!(({ "body": String(comment) } : Json).stringify(), stream=output)
   output.drop()
   body.finish(None).unwrap()
-  let response = @http.fetch!!(request)
+  let response = @http.fetch!(request)
   if response.status() != 200 {
     let body = response.consume().unwrap()
-    let content = @http.text(body).0.await!!()
+    let content = @http.text(body).0.await!()
     response.drop()
     fail!("Failed to update comment. Reason: \{content}")
   }
@@ -349,8 +349,8 @@ async fn top(
   ...
   guard environment["APP_ID"] is Some(app_id)
   ...
-  let review = get_review!!(pull_request_message, pull_request_diff)
-  let comment_id = get_comment_list!!(
+  let review = get_review!(pull_request_message, pull_request_diff)
+  let comment_id = get_comment_list!(
     owner,
     repository,
     pull_request.to_int64(),
@@ -359,9 +359,9 @@ async fn top(
     username,
   )
   if comment_id is Some(id) {
-    update_comment!!(owner, repository, id, review, token, username)
+    update_comment!(owner, repository, id, review, token, username)
   } else {
-    create_comment!!(
+    create_comment!(
       owner,
       repository,
       pull_request.to_int64(),
@@ -389,7 +389,7 @@ async fn top(
   response_out : @types.ResponseOutparam
 ) -> Unit! {
   ...
-  let token = create_installation_access_token!!(
+  let token = create_installation_access_token!(
     installation.to_uint(),
     private_key,
     client_id,
@@ -397,16 +397,16 @@ async fn top(
     username,
   )
   let review = @promise.spawn(async fn(_defer) {
-    let pull_request_diff = get_pr_diff!!(
+    let pull_request_diff = get_pr_diff!(
       owner,
       repository,
       pull_request.to_int64(),
       token,
       username,
     )
-    get_review!!(pull_request_message, pull_request_diff)
+    get_review!(pull_request_message, pull_request_diff)
   })
-  let comment_id = get_comment_list!!(
+  let comment_id = get_comment_list!(
     owner,
     repository,
     pull_request.to_int64(),
@@ -415,13 +415,13 @@ async fn top(
     username,
   )
   if comment_id is Some(id) {
-    update_comment!!(owner, repository, id, review.await!!(), token, username)
+    update_comment!(owner, repository, id, review.await!(), token, username)
   } else {
-    create_comment!!(
+    create_comment!(
       owner,
       repository,
       pull_request.to_int64(),
-      review.await!!(),
+      review.await!(),
       token,
       username,
     )
@@ -451,12 +451,12 @@ async fn get_review(message : String, changes : String) -> String! {
       output_stream.drop()
       body.finish(None).unwrap()
     })
-    @io.println!!(payload.stringify(), stream=output_stream)
+    @io.println!(payload.stringify(), stream=output_stream)
   })
   |> ignore
-  let response = @http.fetch!!(request)
+  let response = @http.fetch!(request)
   let body = response.consume().unwrap()
-  let content = @http.json(body).0.await!!()
+  let content = @http.json(body).0.await!()
   response.drop()
   ...
 }

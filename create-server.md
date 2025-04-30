@@ -127,12 +127,12 @@ async fn top(
 ) -> Unit! {
   let body = request.consume().unwrap()
   request.drop()
-  let content = @http.text(body).0.await!!()
+  let content = @http.text(body).0.await!()
   let response = @http.response!(200)
   let outgoing_body = response.body().unwrap()
   response_out.set(Ok(response))
   let outgoing_stream = outgoing_body.write().unwrap()
-  @io.println!!(content, stream=outgoing_stream)
+  @io.println!(content, stream=outgoing_stream)
   outgoing_stream.drop()
   outgoing_body.finish(None).unwrap_or_error!()
 }
@@ -174,16 +174,16 @@ async fn top(
 ) -> Unit! {
   // Send request
   let request = @http.request!("example.com", path="/", scheme=Https)
-  let response = @http.fetch!!(request)
+  let response = @http.fetch!(request)
   let body = response.consume().unwrap()
-  let content = @http.text(body).0.await!!()
+  let content = @http.text(body).0.await!()
   response.drop()
   // Send response
   let response = @http.response!(200)
   let outgoing_body = response.body().unwrap()
   response_out.set(Ok(response))
   let outgoing_stream = outgoing_body.write().unwrap()
-  @io.println!!("\{content}", stream=outgoing_stream)
+  @io.println!("\{content}", stream=outgoing_stream)
   outgoing_stream.drop()
   outgoing_body.finish(None).unwrap_or_error!()
 }
@@ -235,7 +235,7 @@ async fn top(
   guard token is Some(token) else { fail!("OPENAI_API_KEY is not set") }
   // Get request
   let body = request.consume().unwrap()
-  let content = @http.text(body).0.await!!()
+  let content = @http.text(body).0.await!()
   request.drop()
   // Prepare payload
   let payload : Json = {
@@ -260,12 +260,12 @@ async fn top(
   )
   let body = request.body().unwrap()
   let output_stream = body.write().unwrap()
-  @io.println!!(payload.stringify(), stream=output_stream)
+  @io.println!(payload.stringify(), stream=output_stream)
   output_stream.drop()
   body.finish(None).unwrap_or_error!()
-  let response = @http.fetch!!(request)
+  let response = @http.fetch!(request)
   let body = response.consume().unwrap()
-  let content = @http.json(body).0.await!!()
+  let content = @http.json(body).0.await!()
   response.drop()
   guard content
     is {
