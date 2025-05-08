@@ -243,7 +243,7 @@ async fn top(
     "model": "deepseek/deepseek-chat",
     "messages": [
       { "role": "system", "content": "You are a helpful assistant." },
-      { "role": "user", "content": String(content) },
+      { "role": "user", "content": Json::string(content) },
     ],
   }
   // Send request
@@ -290,7 +290,7 @@ Adjust `src/moon.pkg.json` to add import:
     // ...
     "peter-jerry-ye/wasi-imports/interface/wasi/io/streams",
     "peter-jerry-ye/wasi-imports/interface/wasi/cli/environment",
-    "moonbitlang/x/encoding"
+    "tonyfettes/encoding"
   ]
 }
 ```
