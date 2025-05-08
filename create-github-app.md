@@ -123,9 +123,9 @@ async fn create_installation_access_token(
 ) -> String! {
   let jwt = @jwt.sign_rs256(
     {
-      "iat": Number((now - 60).to_double()),
-      "exp": Number((now + 600).to_double()),
-      "iss": String(client_id),
+      "iat": Json::number((now - 60).to_double()),
+      "exp": Json::number((now + 600).to_double()),
+      "iss": Json::string(client_id),
     },
     private_key,
   )
@@ -136,8 +136,8 @@ async fn create_installation_access_token(
     headers=@http.headers({
       "Accept": ["application/vnd.github.v3+json"],
       "X-GitHub-Api-Version": ["2022-11-28"],
-      "User-Agent": [@encoding.encode(UTF8, username)],
-      "Authorization": [@encoding.encode(UTF8, "Bearer \{jwt}")],
+      "User-Agent": [@encoding.encode(username, encoding=UTF8)],
+      "Authorization": [@encoding.encode("Bearer \{jwt}", encoding=UTF8)],
     }),
   )
   let response = @http.fetch!(request)
@@ -160,9 +160,9 @@ async fn top(
   let json = @http.json(body).0.await!()
   guard json is { "installation": { "id": Number(installation), .. }, .. }
   let environment = Map::from_array(@environment.get_environment())
-  guard environment["CLIENT_ID"] is Some(client_id)
-  guard environment["PRIVATE_KEY"] is Some(private_key)
-  guard environment["USER_NAME"] is Some(username)
+  guard environment.get("CLIENT_ID") is Some(client_id)
+  guard environment.get("PRIVATE_KEY") is Some(private_key)
+  guard environment.get("USER_NAME") is Some(username)
   let now = @wallClock.now().seconds
   let token = create_installation_access_token!(
     installation.to_uint(),
@@ -193,7 +193,7 @@ Update `src/moon.pkg.json`:
   "import": [
     // ...
     "peter-jerry-ye/utils/jwt",
-    "moonbitlang/x/encoding",
+    "tonyfettes/encoding",
     "peter-jerry-ye/wasi-imports/interface/wasi/clocks/wallClock",
     "peter-jerry-ye/wasi-imports/interface/wasi/cli/environment"
   ]

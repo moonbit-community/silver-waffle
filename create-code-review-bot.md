@@ -29,8 +29,8 @@ async fn get_pr_diff(
     path="/repos/\{owner}/\{repo}/pulls/\{pull_number}",
     headers=@http.headers({
       "Accept": ["application/vnd.github.v3.diff"],
-      "Authorization": [@encoding.encode(UTF8, "token \{token}")],
-      "User-Agent": [@encoding.encode(UTF8, username)],
+      "Authorization": [@encoding.encode("token \{token}", encoding=UTF8)],
+      "User-Agent": [@encoding.encode(username, encoding=UTF8)],
     }),
   )
   let response = @http.fetch!(request)
@@ -95,9 +95,9 @@ async fn top(
   }
   let pull_request_diff = 
   let environment = Map::from_array(@environment.get_environment())
-  guard environment["CLIENT_ID"] is Some(client_id)
-  guard environment["PRIVATE_KEY"] is Some(private_key)
-  guard environment["USER_NAME"] is Some(username)
+  guard environment.get("CLIENT_ID") is Some(client_id)
+  guard environment.get("PRIVATE_KEY") is Some(private_key)
+  guard environment.get("USER_NAME") is Some(username)
   let now = @wallClock.now().seconds
   let token = create_installation_access_token!(
     installation.to_uint(),
@@ -152,8 +152,8 @@ async fn get_review(message : String, changes : String) -> String! {
   let payload : Json = {
     "model": "deepseek/deepseek-chat",
     "messages": [
-      { "role": "system", "content": String(system_msg) },
-      { "role": "user", "content": String(user_msg) },
+      { "role": "system", "content": Json::string(system_msg) },
+      { "role": "user", "content": Json::string(user_msg) },
     ],
   }
   let request = @http.request!(
@@ -163,7 +163,7 @@ async fn get_review(message : String, changes : String) -> String! {
     method_=Post,
     headers=@http.headers({
       "Content-Type": ["application/json"],
-      "Authorization": [@encoding.encode(UTF8, "Bearer \{token}")],
+      "Authorization": [@encoding.encode("Bearer \{token}". encoding=UTF8)],
     }),
   )
   let body = request.body().unwrap()
@@ -236,8 +236,8 @@ async fn get_comment_list(
     path="/repos/\{owner}/\{repo}/issues/\{issue_number}/comments",
     headers=@http.headers({
       "Accept": ["application/vnd.github.v3+json"],
-      "Authorization": [@encoding.encode(UTF8, "token \{token}")],
-      "User-Agent": [@encoding.encode(UTF8, username)],
+      "Authorization": [@encoding.encode("token \{token}", encoding=UTF8)],
+      "User-Agent": [@encoding.encode(username, encoding=UTF8)],
     }),
   ).unwrap()
   let response = @http.fetch!(request)
@@ -283,14 +283,17 @@ async fn create_comment(
     method_=Post,
     headers=@http.headers({
       "Accept": ["application/vnd.github.v3+json"],
-      "Authorization": [@encoding.encode(UTF8, "token \{token}")],
+      "Authorization": [@encoding.encode("token \{token}", encoding=UTF8)],
       "X-Github-Api-Version": ["2022-11-28"],
-      "User-Agent": [@encoding.encode(UTF8, username)],
+      "User-Agent": [@encoding.encode(username, encoding=UTF8)],
     }),
   ).unwrap()
   let body = request.body().unwrap()
   let output = body.write().unwrap()
-  @io.println!(({ "body": String(comment) } : Json).stringify(), stream=output)
+  @io.println!(
+    ({ "body": Json::string(comment) } : Json).stringify(),
+    stream=output,
+  )
   output.drop()
   body.finish(None).unwrap()
   let response = @http.fetch!(request)
@@ -318,14 +321,17 @@ async fn update_comment(
     method_=Patch,
     headers=@http.headers({
       "Accept": ["application/vnd.github.v3+json"],
-      "Authorization": [@encoding.encode(UTF8, "token \{token}")],
+      "Authorization": [@encoding.encode("token \{token}", encoding=UTF8)],
       "X-Github-Api-Version": ["2022-11-28"],
-      "User-Agent": [@encoding.encode(UTF8, username)],
+      "User-Agent": [@encoding.encode(username, encoding=UTF8)],
     }),
   ).unwrap()
   let body = request.body().unwrap()
   let output = body.write().unwrap()
-  @io.println!(({ "body": String(comment) } : Json).stringify(), stream=output)
+    @io.println!(
+    ({ "body": Json::string(comment) } : Json).stringify(),
+    stream=output,
+  )
   output.drop()
   body.finish(None).unwrap()
   let response = @http.fetch!(request)
@@ -347,7 +353,7 @@ async fn top(
   response_out : @types.ResponseOutparam
 ) -> Unit! {
   ...
-  guard environment["APP_ID"] is Some(app_id)
+  guard environment.get("APP_ID") is Some(app_id)
   ...
   let review = get_review!(pull_request_message, pull_request_diff)
   let comment_id = get_comment_list!(
