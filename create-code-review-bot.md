@@ -447,7 +447,7 @@ async fn get_review(message : String, changes : String) -> String! {
     method_=Post,
     headers=@http.headers({
       "Content-Type": ["application/json"],
-      "Authorization": [@encoding.encode(UTF8, "Bearer \{token}")],
+      "Authorization": [@encoding.encode(encoding=UTF8, "Bearer \{token}")],
     }),
   )
   let body = request.body().unwrap()
